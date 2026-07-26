@@ -244,7 +244,7 @@ export default function App() {
           </div>
 
           <div className="flex flex-col items-center md:items-end text-[10px] md:text-sm text-red-200 md:mt-0">
-            <p>&copy; 2026 Panitia RW 03. All rights reserved.</p>
+            <p>&copy; 2026 Panitia Agustusan. All rights reserved.</p>
             <p>Built by Khelasesa</p>
           </div>
         </div>
