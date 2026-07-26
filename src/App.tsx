@@ -18,35 +18,35 @@ const competitions: Competition[] = [
     name: "Balap Karung",
     min_usia: 7,
     max_usia: 15,
-    image: "../assets/images/lomba balap karung-rbg.png",
+    image: "/images/lomba balap karung-rbg.png",
   },
   {
     id: 2,
     name: "Lomba Kelereng",
     min_usia: 5,
     max_usia: 12,
-    image: "../assets/images/lomba kelereng-rbg.png",
+    image: "/images/lomba kelereng-rbg.png",
   },
   {
     id: 3,
     name: "Makan Kerupuk",
     min_usia: 5,
     max_usia: 12,
-    image: "../assets/images/lomba makan kerupuk-rbg.png",
+    image: "/images/lomba makan kerupuk-rbg.png",
   },
   {
     id: 4,
     name: "Paku Dalam Botol",
     min_usia: 7,
     max_usia: 15,
-    image: "../assets/images/lomba masukin paku ke dalam botol-rbg.png",
+    image: "/images/lomba masukin paku ke dalam botol-rbg.png",
   },
   {
     id: 5,
     name: "Tarik Tambang",
     min_usia: 16,
     max_usia: 50,
-    image: "../assets/images/lomba tarik tambang-rbg.png",
+    image: "/images/lomba tarik tambang-rbg.png",
   },
 ];
 
@@ -169,7 +169,7 @@ export default function App() {
             className="flex justify-center flex-col"
           >
             <img
-              src="../assets/images/monumen-rbg.png"
+              src="/images/monumen-rbg.png"
               alt="Garuda Pancasila"
               className="w-full md:w-full h-auto drop-shadow-2xl object-contain"
               referrerPolicy="no-referrer"
