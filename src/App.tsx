@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { div } from "motion/react-client";
 
 const SCRIPT_URL: string | undefined = import.meta.env.VITE_WEB_APP_URL;
 
@@ -10,6 +11,7 @@ type Competition = {
   min_usia: number;
   max_usia: number;
   image: string;
+  requiresAudio?: boolean;
 };
 
 const competitions: Competition[] = [
@@ -48,6 +50,14 @@ const competitions: Competition[] = [
     max_usia: 50,
     image: "/images/lomba tarik tambang-rbg.png",
   },
+  {
+    id: 6,
+    name: "Tari-tarian",
+    min_usia: 5,
+    max_usia: 50,
+    image: "/images/lomba tarian-rbg.png",
+    requiresAudio: true,
+  },
 ];
 
 export default function App() {
@@ -56,6 +66,11 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [audioFile, setAudioFile] = useState<{
+    name: string;
+    base64: string;
+    type: string;
+  } | null>(null);
 
   const [formData, setFormData] = useState({
     nama: "",
@@ -86,6 +101,32 @@ export default function App() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        setErrorMsg("Ukuran file audio terlalu besar (Maks 10MB");
+        setAudioFile(null);
+        e.target.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64String = (event.target?.result as string).split(",")[1];
+        setAudioFile({
+          name: file.name,
+          base64: base64String,
+          type: file.type,
+        });
+        setErrorMsg(null);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setAudioFile(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedLomba) return;
@@ -100,6 +141,11 @@ export default function App() {
       setErrorMsg(
         `Maaf, lomba ${selectedLomba.name} khusus untuk usia ${selectedLomba.min_usia} - ${selectedLomba.max_usia} tahun.`,
       );
+      return;
+    }
+
+    if (selectedLomba.requiresAudio && !audioFile) {
+      setErrorMsg("Harap unggah file audio/lagu tari-tariannya");
       return;
     }
 
@@ -123,6 +169,9 @@ export default function App() {
           nomor_wa: formData.whatsapp,
           alamat: formData.alamat,
           usia: usia,
+          audio_name: audioFile ? audioFile.name : "",
+          audio_base64: audioFile ? audioFile.base64 : "",
+          audi0_mimeType: audioFile ? audioFile.type : "",
         }),
       });
 
@@ -376,6 +425,26 @@ export default function App() {
                       {selectedLomba.max_usia} Tahun
                     </p>
                   </div>
+
+                  {selectedLomba.requiresAudio && (
+                    <div>
+                      <label
+                        htmlFor="audio"
+                        className="block text-sm font-semibold text-neutral-700 mb-1.5"
+                      >
+                        Upload Audio/Musik Tarian (Maks 10MB)
+                      </label>
+                      <input
+                        type="file"
+                        id="audio"
+                        name="audio"
+                        accept="audio/*"
+                        required
+                        onChange={handleFileChange}
+                        className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+                      />
+                    </div>
+                  )}
 
                   <div className="pt-3 flex gap-3">
                     <button
