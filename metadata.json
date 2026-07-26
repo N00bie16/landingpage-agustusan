@@ -1,6 +1,0 @@
-{
-  "name": "Lomba Agustusan",
-  "description": "Landing page pendaftaran lomba 17 Agustus dengan integrasi Google Sheets.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
