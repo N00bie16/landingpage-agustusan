@@ -169,13 +169,14 @@ export default function App() {
             className="flex justify-center flex-col"
           >
             <img
-              src="/images/monumen-rbg.png"
+              src="/images/monumen-rbg.webp"
               alt="Garuda Pancasila"
               className="w-full md:w-full h-auto drop-shadow-2xl object-contain"
               referrerPolicy="no-referrer"
             />
             <p className="text-xl md:text-2xl text-yellow-200 max-w-xl mx-auto font-medium font-bebas px-4">
-              Rayakan semangat kemerdekaan dengan mengikuti berbagai <br />
+              Rayakan semangat kemerdekaan dengan mengikuti berbagai{" "}
+              <br className="block md:hidden" />
               lomba seru!
             </p>
           </motion.div>
