@@ -1,64 +1,20 @@
 import React, { useState } from "react";
-import { X, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { div } from "motion/react-client";
+import type { Competition } from "@/data";
+
+import { competitions } from "@/data";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Modal from "@/components/Modal";
 
 const SCRIPT_URL: string | undefined = import.meta.env.VITE_WEB_APP_URL;
 
-type Competition = {
-  id: number;
+type AudioFile = {
   name: string;
-  min_usia: number;
-  max_usia: number;
-  image: string;
-  requiresAudio?: boolean;
+  base64: string;
+  type: string;
 };
-
-const competitions: Competition[] = [
-  {
-    id: 1,
-    name: "Balap Karung",
-    min_usia: 7,
-    max_usia: 15,
-    image: "/images/lomba balap karung-rbg.png",
-  },
-  {
-    id: 2,
-    name: "Lomba Kelereng",
-    min_usia: 5,
-    max_usia: 12,
-    image: "/images/lomba kelereng-rbg.png",
-  },
-  {
-    id: 3,
-    name: "Makan Kerupuk",
-    min_usia: 5,
-    max_usia: 12,
-    image: "/images/lomba makan kerupuk-rbg.png",
-  },
-  {
-    id: 4,
-    name: "Paku Dalam Botol",
-    min_usia: 7,
-    max_usia: 15,
-    image: "/images/lomba masukin paku ke dalam botol-rbg.png",
-  },
-  {
-    id: 5,
-    name: "Tarik Tambang",
-    min_usia: 16,
-    max_usia: 50,
-    image: "/images/lomba tarik tambang-rbg.png",
-  },
-  {
-    id: 6,
-    name: "Tari-tarian",
-    min_usia: 5,
-    max_usia: 50,
-    image: "/images/lomba tarian-rbg.png",
-    requiresAudio: true,
-  },
-];
 
 export default function App() {
   const [selectedLomba, setSelectedLomba] = useState<Competition | null>(null);
@@ -66,11 +22,7 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [audioFile, setAudioFile] = useState<{
-    name: string;
-    base64: string;
-    type: string;
-  } | null>(null);
+  const [audioFile, setAudioFile] = useState<AudioFile | null>(null);
 
   const [formData, setFormData] = useState({
     nama: "",
@@ -206,31 +158,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <header className="relative bg-red-600 text-white overflow-hidden pb-4 pt-2 px-4">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-red-500 rounded-full blur-3xl opacity-50" />
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-red-700 rounded-full blur-3xl opacity-50" />
-
-        <div className="relative max-w-4xl mx-auto text-center space-y-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="flex justify-center flex-col"
-          >
-            <img
-              src="/images/monumen-rbg.webp"
-              alt="Garuda Pancasila"
-              className="w-full md:w-full h-auto drop-shadow-2xl object-contain"
-              referrerPolicy="no-referrer"
-            />
-            <p className="text-xl md:text-2xl text-yellow-200 max-w-xl mx-auto font-medium font-bebas px-4">
-              Rayakan semangat kemerdekaan dengan mengikuti berbagai{" "}
-              <br className="block md:hidden" />
-              lomba seru!
-            </p>
-          </motion.div>
-        </div>
-      </header>
+      <Header />
 
       <main className="max-w-4xl mx-auto px-4 mt-8 pb-10">
         <p className="text-xl md:text-2xl max-w-xl mx-auto font-bold font-poppins px-4 mt-2 text-center">
@@ -245,6 +173,7 @@ export default function App() {
                 whileTap={{ scale: 0.96 }}
                 onClick={() => handleOpenModal(lomba)}
                 className="p-1 hover:shadow-xl hover:shadow-red-500/20 border-transparent hover:border-red-100 active:bg-red-100 cursor-pointer transition-all flex flex-col group overflow-hidden rounded-2xl duration-300 ease-in-out"
+                role="button"
               >
                 <div className="relative w-full aspect-square overflow-hidden mt-2">
                   <motion.img
@@ -283,198 +212,19 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="bg-red-600 text-white py-4 mt-12">
-        <div className="max-w-4xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
-          <div>
-            <h3 className="font-bold text-lg">Dirgahayu Republik Indonesia!</h3>
-            <p className="text-sm text-red-200">
-              Terus Melaju untuk Indonesia Maju.
-            </p>
-          </div>
+      <Footer />
 
-          <div className="flex flex-col items-center md:items-end text-[10px] md:text-sm text-red-200 md:mt-0">
-            <p>&copy; 2026 Panitia Agustusan. All rights reserved.</p>
-            <p>Built by Khelasesa</p>
-          </div>
-        </div>
-      </footer>
-
-      <AnimatePresence>
-        {isModalOpen && selectedLomba && (
-          <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={handleCloseModal}
-              className="absolute inset-0 bg-neutral-900/50 backdrop-blur-sm"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="relative w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
-            >
-              <div className="bg-red-600 text-white p-5 flex items-center justify-between shrink-0">
-                <div>
-                  <h2 className="text-xl font-bold leading-tight">
-                    Pendaftaran Lomba
-                  </h2>
-                  <p className="text-red-100 text-sm font-medium mt-0.5">
-                    {selectedLomba.name}
-                  </p>
-                </div>
-                <button
-                  onClick={handleCloseModal}
-                  className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors shrink-0"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="p-5 overflow-y-auto">
-                {errorMsg && (
-                  <div className="mb-5 p-3.5 bg-red-50 text-red-700 rounded-xl flex items-start gap-2.5 border border-red-100">
-                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                    <p className="text-sm font-medium leading-relaxed">
-                      {errorMsg}
-                    </p>
-                  </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="nama"
-                      className="block text-sm font-semibold text-neutral-700 mb-1.5"
-                    >
-                      Nama Lengkap
-                    </label>
-                    <input
-                      type="text"
-                      id="nama"
-                      name="nama"
-                      required
-                      value={formData.nama}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
-                      placeholder="Masukkan nama lengkap"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="whatsapp"
-                      className="block text-sm font-semibold text-neutral-700 mb-1.5"
-                    >
-                      Nomor WhatsApp/HP
-                    </label>
-                    <input
-                      type="tel"
-                      id="whatsapp"
-                      name="whatsapp"
-                      required
-                      value={formData.whatsapp}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
-                      placeholder="08123456789"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="alamat"
-                      className="block text-sm font-semibold text-neutral-700 mb-1.5"
-                    >
-                      Alamat
-                    </label>
-                    <input
-                      type="text"
-                      id="alamat"
-                      name="alamat"
-                      required
-                      value={formData.alamat}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
-                      placeholder="Domisili atau Alamat RT/RW"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="usia"
-                      className="block text-sm font-semibold text-neutral-700 mb-1.5"
-                    >
-                      Usia (Tahun)
-                    </label>
-                    <input
-                      type="number"
-                      id="usia"
-                      name="usia"
-                      required
-                      min="1"
-                      max="100"
-                      value={formData.usia}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
-                      placeholder="Misal: 10"
-                    />
-                    <p className="text-xs text-neutral-500 mt-1.5 font-medium">
-                      Batas usia lomba ini: {selectedLomba.min_usia} -{" "}
-                      {selectedLomba.max_usia} Tahun
-                    </p>
-                  </div>
-
-                  {selectedLomba.requiresAudio && (
-                    <div>
-                      <label
-                        htmlFor="audio"
-                        className="block text-sm font-semibold text-neutral-700 mb-1.5"
-                      >
-                        Upload Audio/Musik Tarian (Maks 10MB)
-                      </label>
-                      <input
-                        type="file"
-                        id="audio"
-                        name="audio"
-                        accept="audio/*"
-                        required
-                        onChange={handleFileChange}
-                        className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
-                      />
-                    </div>
-                  )}
-
-                  <div className="pt-3 flex gap-3">
-                    <button
-                      type="button"
-                      onClick={handleCloseModal}
-                      className="flex-1 py-3 px-4 bg-neutral-100 text-neutral-700 font-semibold rounded-xl hover:bg-neutral-200 transition-colors"
-                    >
-                      Batal
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex-1 py-3 px-4 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin shrink-0" />
-                          Memproses...
-                        </>
-                      ) : (
-                        "Submit"
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <Modal
+        isModalOpen={isModalOpen}
+        selectedLomba={selectedLomba}
+        handleCloseModal={handleCloseModal}
+        errorMsg={errorMsg}
+        formData={formData}
+        handleChange={handleChange}
+        handleFileChange={handleFileChange}
+        handleSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 }
