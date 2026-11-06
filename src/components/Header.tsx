@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export default function Header() {
   return (
@@ -16,10 +16,12 @@ export default function Header() {
           <img
             src="/images/monumen-rbg.webp"
             alt="Garuda Pancasila"
+            width="768"
+            height="384"
             className="w-full md:w-full h-80 md:h-96 drop-shadow-2xl object-contain"
             referrerPolicy="no-referrer"
           />
-          <p className="text-xl md:text-2xl text-yellow-200 max-w-xl mx-auto font-medium font-bebas px-4">
+          <p className="text-xl md:text-2xl text-white max-w-xl mx-auto font-medium font-bebas px-4">
             Rayakan semangat kemerdekaan dengan mengikuti berbagai{" "}
             <br className="block md:hidden" />
             lomba seru!

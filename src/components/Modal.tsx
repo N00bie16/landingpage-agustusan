@@ -1,4 +1,5 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { AlertCircle, Loader2, X } from "lucide-react";
 import type { Competition } from "@/data";
 
@@ -30,6 +31,57 @@ export default function Modal({
   handleSubmit,
   isSubmitting,
 }: ModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const previousActiveElement = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    const appContent = document.getElementById("app-content") as HTMLElement | null;
+    document.body.style.overflow = "hidden";
+    appContent?.setAttribute("inert", "");
+    appContent?.setAttribute("aria-hidden", "true");
+
+    const handleDialogKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        handleCloseModal();
+        return;
+      }
+      if (event.key !== "Tab" || !dialogRef.current) return;
+
+      const focusable = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", handleDialogKeyDown);
+
+    window.requestAnimationFrame(() => {
+      dialogRef.current?.querySelector<HTMLInputElement>("input")?.focus();
+    });
+
+    return () => {
+      document.removeEventListener("keydown", handleDialogKeyDown);
+      document.body.style.overflow = previousOverflow;
+      appContent?.removeAttribute("inert");
+      appContent?.removeAttribute("aria-hidden");
+      previousActiveElement?.focus();
+    };
+  }, [isModalOpen]);
+
   return (
     <AnimatePresence>
       {isModalOpen && selectedLomba && (
@@ -39,27 +91,35 @@ export default function Modal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleCloseModal}
+            aria-hidden="true"
             className="absolute inset-0 bg-neutral-900/50 backdrop-blur-sm"
           />
 
           <motion.div
+            ref={dialogRef}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="registration-dialog-title"
+            aria-describedby="registration-dialog-description"
             className="relative w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
           >
             <div className="bg-red-600 text-white p-5 flex items-center justify-between shrink-0">
               <div>
-                <h2 className="text-xl font-bold leading-tight">
+                <h2 id="registration-dialog-title" className="text-xl font-bold leading-tight">
                   Pendaftaran Lomba
                 </h2>
-                <p className="text-red-100 text-sm font-medium mt-0.5">
+                <p id="registration-dialog-description" className="text-white text-sm font-medium mt-0.5">
                   {selectedLomba.name}
                 </p>
               </div>
               <button
+                type="button"
                 onClick={handleCloseModal}
-                className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors shrink-0"
+                aria-label="Tutup formulir pendaftaran"
+                className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -67,7 +127,7 @@ export default function Modal({
 
             <div className="p-5 overflow-y-auto">
               {errorMsg && (
-                <div className="mb-5 p-3.5 bg-red-50 text-red-700 rounded-xl flex items-start gap-2.5 border border-red-100">
+                <div id="registration-error" role="alert" className="mb-5 p-3.5 bg-red-50 text-red-700 rounded-xl flex items-start gap-2.5 border border-red-100">
                   <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                   <p className="text-sm font-medium leading-relaxed">
                     {errorMsg}
@@ -75,7 +135,11 @@ export default function Modal({
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-4"
+                aria-describedby={errorMsg ? "registration-error" : undefined}
+              >
                 <div>
                   <label
                     htmlFor="nama"
@@ -90,7 +154,7 @@ export default function Modal({
                     required
                     value={formData.nama}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-200 focus:border-red-600 transition-all"
                     placeholder="Masukkan nama lengkap"
                   />
                 </div>
@@ -109,7 +173,7 @@ export default function Modal({
                     required
                     value={formData.whatsapp}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-200 focus:border-red-600 transition-all"
                     placeholder="08123456789"
                   />
                 </div>
@@ -128,7 +192,7 @@ export default function Modal({
                     required
                     value={formData.alamat}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-200 focus:border-red-600 transition-all"
                     placeholder="Domisili atau Alamat RT/RW"
                   />
                 </div>
@@ -145,14 +209,14 @@ export default function Modal({
                     id="usia"
                     name="usia"
                     required
-                    min="1"
-                    max="100"
                     value={formData.usia}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
+                    aria-describedby="age-limit"
+                    aria-invalid={errorMsg?.includes("usia") ? "true" : undefined}
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-200 focus:border-red-600 transition-all"
                     placeholder="Misal: 10"
                   />
-                  <p className="text-xs text-neutral-500 mt-1.5 font-medium">
+                  <p id="age-limit" className="text-xs text-neutral-500 mt-1.5 font-medium">
                     Batas usia lomba ini: {selectedLomba.min_usia} -{" "}
                     {selectedLomba.max_usia} Tahun
                   </p>
@@ -171,10 +235,15 @@ export default function Modal({
                       id="audio"
                       name="audio"
                       accept="audio/*"
-                      required
+                      aria-required="true"
+                      aria-invalid={errorMsg?.includes("audio") ? "true" : undefined}
+                      aria-describedby="audio-requirement"
                       onChange={handleFileChange}
-                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-red-200 focus:border-red-600 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
                     />
+                    <p id="audio-requirement" className="mt-1.5 text-xs text-neutral-500">
+                      Wajib memilih satu file audio dengan ukuran maksimal 10 MB.
+                    </p>
                   </div>
                 )}
 
@@ -182,14 +251,14 @@ export default function Modal({
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="flex-1 py-3 px-4 bg-neutral-100 text-neutral-700 font-semibold rounded-xl hover:bg-neutral-200 transition-colors"
+                    className="flex-1 py-3 px-4 bg-neutral-100 text-neutral-700 font-semibold rounded-xl hover:bg-neutral-200 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 py-3 px-4 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
+                    className="flex-1 py-3 px-4 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-70 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300"
                   >
                     {isSubmitting ? (
                       <>
@@ -197,7 +266,7 @@ export default function Modal({
                         Memproses...
                       </>
                     ) : (
-                      "Submit"
+                      "Daftar Sekarang"
                     )}
                   </button>
                 </div>
